@@ -1,4 +1,4 @@
-# ECML_284
+# Code for Unsupervised domain adaptation with exploring more statistics and discriminative information
 
 # Code
 This is the code for MSDI implemented by MATLAB! 
