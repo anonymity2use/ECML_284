@@ -5,3 +5,5 @@ This is the code for MSDI implemented by MATLAB! The source code is the "src" fo
 
 # Run code
 you can cd /src/experiments, then you can run the demo code
+
+when train_mode = 'init', you will run the MSDI-V algorithm, after that, setting mode = 'adam', then you can run MSDI algorithm!
