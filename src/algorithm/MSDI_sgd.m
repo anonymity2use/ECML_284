@@ -1,9 +1,6 @@
-function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
+function [Acc,acc_iter,Beta,Yt_pred] = MSDI(Xs,Ys,Xt,Yt,options,mode,src,tgt)
 
-% Reference:
-%% Jindong Wang, Wenjie Feng, Yiqiang Chen, Han Yu, Meiyu Huang, Philip S.
-%% Yu. Visual Domain Adaptation with Manifold Embedded Distribution
-%% Alignment. ACM Multimedia conference 2018.
+
 
 %% Inputs:
 %%% Xs      : Source domain feature matrix, n * dim
@@ -27,7 +24,7 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
 %% Load algorithm options
     addpath(genpath('liblinear/matlab'));
 %% Algorithm starts here
-    fprintf('MK_MMCD_sgd starts...\n');
+    fprintf('MSDI_adam starts...\n');
     
     %% Load algorithm options
     if ~isfield(options,'p')
@@ -58,13 +55,13 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
     
     % Manifold feature learning
     [Xs_new,Xt_new,~] = GFK_Map(Xs,Xt,options.d);
-    Xs = double(Xs_new'); %è¡Œå˜åˆ?
-    Xt = double(Xt_new'); %è¡Œå˜åˆ?
+    Xs = double(Xs_new'); %ç›å±½å½‰é’?
+    Xt = double(Xt_new'); %ç›å±½å½‰é’?
 
     X = [Xs,Xt];
     n = size(Xs,2);
     m = size(Xt,2);
-    C = length(unique(Ys)); %ç±»æ•°é‡?
+    C = length(unique(Ys)); %ç»«ç»˜æšŸé–²?
     acc_iter = [];
     
     YY = [];
@@ -83,7 +80,7 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
         manifold.NeighborMode = 'KNN';
         manifold.WeightMode = 'Cosine';
         W = lapgraph(X',manifold);
-        Dw = diag(sparse(sqrt(1 ./ sum(W)))); % Dçš?-1/2æ¬¡æ–¹ï¼Œè¿™ä¹ˆå†™è®¡ç®—çš„å¿«
+        Dw = diag(sparse(sqrt(1 ./ sum(W)))); % Dé¨?-1/2å¨†â„ƒæŸŸé”›å²ƒç¹–æ¶”å å•“ç’ï¼„ç•»é¨å‹«æ©
         L = eye(n + m) - Dw * W * Dw;
     else
         L = 0;
@@ -145,7 +142,7 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
         % norm function has bug, so we compute another way
         V = V / sqrt(sumsqr(V));
 
-%         % °´ÌÝ¶ÈÏÂ½µµÄ·½·¨Çó\beta 
+%         % æŒ‰æ¢¯åº¦ä¸‹é™çš„æ–¹æ³•æ±‚\beta 
 
 %         second = (options.eta * eye((n+m),(n+m)) + ...
 %                                     options.lambda * K * V  +  options.rho * K * L  + options.delta * K * H  + K * E ) * K;
@@ -167,15 +164,15 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
 %                        
 %         g = (second + 0.0001 * eye(n + m,n + m))^-1 * first;  
         [g, state] = Adam(first, state);
-        Beta = Beta - g;  % ¼õ·¨ÊÇ¶ÔµÄ
+        Beta = Beta - g;  % å‡æ³•æ˜¯å¯¹çš„
 % %         Beta = Beta + learn_rate * (K * E * YY + (options.eta * speye(n + m,n + m) + ...
 %                                     options.lambda * K * V +  options.rho * K * L + options.delta * K * H -K * E) * K' * Beta);
         if mod(t,1) == 0
-        loss1 = trace(-2 * YY *  E * K * Beta +  Beta' * K * E  * K * Beta + YY * E * YY');  %+ ... ·ÖÀà
-        loss2 = options.eta * trace(Beta' * K * Beta); % + ...                  ÕýÔòÏî
+        loss1 = trace(-2 * YY *  E * K * Beta +  Beta' * K * E  * K * Beta + YY * E * YY');  %+ ... åˆ†ç±»
+        loss2 = options.eta * trace(Beta' * K * Beta); % + ...                  æ­£åˆ™é¡¹
         loss3 = options.lambda * trace(Beta' * K * V * K * Beta); % + ...       MMCD
-        loss4 = options.rho * trace(Beta' * K * L * K * Beta); % + ...          Á÷ÐÐÕýÔò
-        loss5 = options.delta * trace(Beta' * K * H * K * Beta - eye(C,C));              % Ô¼ÊøÌõ¼þ
+        loss4 = options.rho * trace(Beta' * K * L * K * Beta); % + ...          æµè¡Œæ­£åˆ™
+        loss5 = options.delta * trace(Beta' * K * H * K * Beta - eye(C,C));              % çº¦æŸæ¡ä»¶
         loss6 = options.add * trace(Beta' * K * K * Beta * Beta' * K * K * Beta - 2 * Beta' * K * K * Beta + eye(C,C));
         % compute MMD distance 
         MMD_distance = trace(Beta' * K * Mc * K * Beta );
@@ -188,7 +185,7 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
         [~,Cls] = max(F,[],2); % predict Xt
         Acc = numel(find(Cls(n+1:end)==Yt)) / m;
                
-        % Êä³ö
+        % è¾“å‡º
         Cls = Cls(n+1:end);
         acc_iter = [acc_iter;Acc];
         fprintf('Iteration:[%02d]>> loss_all=%.4f, loss1 = %.4f, loss2 = %.4f,loss3 = %.4f,loss4 = %.4f,loss5 = %.4f,loss6 = %.4f,Acc=%f, MMD=%f MMCD=%f\n', ...
@@ -197,7 +194,7 @@ function [Acc,acc_iter,Beta,Yt_pred] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
     end
     Yt_pred = Cls;
     Acc = max(acc_iter);
-    fprintf('MK_MMCD ends!\n');
+    fprintf('MSDI_adam ends!\n');
 
 end
 
