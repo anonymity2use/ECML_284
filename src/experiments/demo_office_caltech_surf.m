@@ -17,13 +17,13 @@ for i = 1 : 4
         tgt = str_domains{j};
 
         load(['data/' src '_SURF_L10.mat']);     % source domain
-        fts = fts ./ repmat(sum(fts,2),1,size(fts,2)); %每一维度做均�?
-        Xs = zscore(fts,1);    clear fts   %标准化（归一化）
+        fts = fts ./ repmat(sum(fts,2),1,size(fts,2)); %æ¯ä¸€ç»´åº¦åšå‡å€?
+        Xs = zscore(fts,1);    clear fts   %æ ‡å‡†åŒ–ï¼ˆå½’ä¸€åŒ–ï¼‰
         Ys = labels;           clear labels
         
         load(['data/' tgt '_SURF_L10.mat']);     % target domain
-        fts = fts ./ repmat(sum(fts,2),1,size(fts,2)); %每一维度做均�?
-        Xt = zscore(fts,1);     clear fts %标准化（归一化）
+        fts = fts ./ repmat(sum(fts,2),1,size(fts,2)); %æ¯ä¸€ç»´åº¦åšå‡å€?
+        Xt = zscore(fts,1);     clear fts %æ ‡å‡†åŒ–ï¼ˆå½’ä¸€åŒ–ï¼‰
         Yt = labels;            clear labels
         
         % meda
@@ -61,7 +61,7 @@ for i = 1 : 4
                 options.mu = 1;
                 options.add = 0.1;  % 0.01
         %         [Acc,~,~,~] = MEDA(Xs,Ys,Xt,Yt,options);
-                [Acc,~,~,~] = MSDI_sgd(Xs,Ys,Xt,Yt,options, mode_new, src, tgt);
+                [Acc,~,~,~] = MSDI_adam(Xs,Ys,Xt,Yt,options, mode_new, src, tgt);
             case 'init'
                 options.d = 20;
                 options.rho = 1.0;
