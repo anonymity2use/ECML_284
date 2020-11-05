@@ -1,9 +1,6 @@
-function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,options,mode,src,tgt)
+function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MSDI(Xs,Ys,Xt,Yt,options,mode,src,tgt)
 
-% Reference:
-%% Jindong Wang, Wenjie Feng, Yiqiang Chen, Han Yu, Meiyu Huang, Philip S.
-%% Yu. Visual Domain Adaptation with Manifold Embedded Distribution
-%% Alignment. ACM Multimedia conference 2018.
+
 
 %% Inputs:
 %%% Xs      : Source domain feature matrix, n * dim
@@ -27,7 +24,7 @@ function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,opt
 %% Load algorithm options
     addpath(genpath('liblinear/matlab'));
 %% Algorithm starts here
-    fprintf('MK_MMCD starts...\n');
+    fprintf('MSDI starts...\n');
     
     %% Load algorithm options
     if ~isfield(options,'p')
@@ -58,13 +55,13 @@ function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,opt
     
     % Manifold feature learning
     [Xs_new,Xt_new,~] = GFK_Map(Xs,Xt,options.d);
-    Xs = double(Xs_new'); %行变�?
-    Xt = double(Xt_new'); %行变�?
+    Xs = double(Xs_new'); %琛屽彉鍒?
+    Xt = double(Xt_new'); %琛屽彉鍒?
 
     X = [Xs,Xt];
     n = size(Xs,2);
     m = size(Xt,2);
-    C = length(unique(Ys)); %类数�?
+    C = length(unique(Ys)); %绫绘暟閲?
     acc_iter = [];
     MMD_distance_iter = [];
     
@@ -84,7 +81,7 @@ function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,opt
         manifold.NeighborMode = 'KNN';
         manifold.WeightMode = 'Cosine';
         W = lapgraph(X',manifold);
-        Dw = diag(sparse(sqrt(1 ./ sum(W)))); % D�?-1/2次方，这么写计算的快
+        Dw = diag(sparse(sqrt(1 ./ sum(W)))); % D鐨?-1/2娆℃柟锛岃繖涔堝啓璁＄畻鐨勫揩
         L = eye(n + m) - Dw * W * Dw;
     else
         L = 0;
@@ -93,13 +90,13 @@ function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,opt
     % Generate soft labels for the target domain
       knn_model = fitcknn(X(:,1:n)',Ys,'NumNeighbors',1);
       Cls = knn_model.predict(X(:,n + 1:end)'); % predict Xt
-    % Linear ���Է�����     
+    % Linear 线性分类器     
 %       model = train(Ys,sparse(X(:,1:n)'),'-s 2 -c 0.7 -q 1');
 %       [Cls,~] = predict(Yt,sparse(X(:,n+1:end)'),model);
       
     % neural network     
     
-    % TCA 去初始化Yt�? 
+    % TCA 鍘诲垵濮嬪寲Yt锛? 
 
     % Construct kernel
 %     K = kernel_meda('rbf',X,sqrt(sum(sum(X .^ 2).^0.5)/(n + m)));
@@ -175,14 +172,14 @@ function [Acc,acc_iter,Beta,Yt_pred,MMD_distance_iter] = MK_MMCD(Xs,Ys,Xt,Yt,opt
         end
         
                
-        % ���
+        % 输出
         Cls = Cls(n+1:end);
         acc_iter = [acc_iter;Acc];
         fprintf('Iteration:[%02d]>>mu=%.2f,Acc=%f,MMD=%f,MMCD=%f\n',t,mu,Acc,MMD_distance,MMCD_distance);
     end
     Yt_pred = Cls;
     Acc = max(acc_iter);
-    fprintf('MK_MMCD ends!\n');
+    fprintf('MSDI ends!\n');
 end
 
 function K = kernel_meda(ker,X,sigma)
