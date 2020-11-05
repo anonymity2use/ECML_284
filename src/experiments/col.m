@@ -52,7 +52,7 @@ for i = 1 : 2
             options.delta = 0.01;
             options.add = 0.01;
         %     [Acc,~,~,~] = MEDA(Xs',Ys,Xt',Yt,options);
-            [Acc,~,~,~] = MSDI_sgd(Xs',Ys,Xt',Yt,options,mode_new,src,tar);
+            [Acc,~,~,~] = MSDI_adam(Xs',Ys,Xt',Yt,options,mode_new,src,tar);
         case 'init'
             options.d = 20;
             options.rho = 0.1;
